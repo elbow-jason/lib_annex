@@ -1,4 +1,4 @@
-use super::activation::ActivatorFn;
+use super::activation::Activator;
 use super::num_type::Num;
 
 #[derive(Clone)]
@@ -52,10 +52,17 @@ impl Neuron {
         total_loss_pd: Num,
         neuron_loss_pd: Num,
         learning_rate: Num,
-        activation_deriv: &Box<ActivatorFn>,
+        activator: &Activator,
     ) -> Vec<Num> {
-        let sum_deriv = activation_deriv(self._sum);
         let delta_coeff = learning_rate * total_loss_pd * neuron_loss_pd;
+        let sum_deriv = activator.derivative(self._sum);
+        println!("total_loss_pd {:?}", total_loss_pd);
+        println!("neuron_loss_pd {:?}", neuron_loss_pd);
+        println!("learning_rate {:?}", learning_rate);
+        println!("activator {:?}", activator);
+        println!("sum_deriv {:?}", sum_deriv);
+        println!("_sum {:?}", self._sum);
+        println!("delta_coeff {:?}", delta_coeff);
         self._bias -= calc_delta(self._bias, sum_deriv, delta_coeff);
         inputs
             .iter()
@@ -75,7 +82,7 @@ fn calc_delta(input: Num, sum_deriv: Num, delta_coeff: Num) -> Num {
 
 #[cfg(test)]
 mod neuron_test {
-    use super::super::activation::{sigmoid, ActivatorFn};
+    use super::super::activation::Activator;
     use super::Neuron;
 
     #[test]
@@ -111,17 +118,21 @@ mod neuron_test {
         let total_loss_pd = 0.5;
         let neuron_loss_pd = 0.3;
         let learning_rate = 0.05;
-        let activation_deriv: Box<ActivatorFn> = Box::new(sigmoid);
+        let activator = &Activator::Sigmoid;
         let next_loss_pds = n.backprop(
             &inputs,
             total_loss_pd,
             neuron_loss_pd,
             learning_rate,
-            &activation_deriv,
+            activator,
         );
-        let expected_weights = vec![0.9933940219151659, -0.0059453802763507054, -1.1];
+        let expected_weights = vec![0.9992125481094737, -7.087067014736697e-4, -1.1];
         assert_eq!(n.clone_weights(), expected_weights);
-        let expected_next_loss_pds = vec![0.8807970779778823, 0.0, -0.9688767857756706];
+
+        let expected_bias = 0.9992125481094737;
+        assert_eq!(n.bias(), expected_bias);
+
+        let expected_next_loss_pds = vec![0.10499358540350662, 0.0, -0.11549294394385728];
         assert_eq!(next_loss_pds, expected_next_loss_pds);
     }
 

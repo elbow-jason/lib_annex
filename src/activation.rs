@@ -1,6 +1,40 @@
 use super::num_type::Num;
 pub type ActivatorFn = Fn(Num) -> Num;
 
+#[derive(Debug)]
+pub enum Activator {
+    Relu,
+    Tanh,
+    Sigmoid,
+}
+
+impl Activator {
+    pub fn from_name(name: &str) -> Activator {
+        match name {
+            "relu" => Activator::Relu,
+            "tanh" => Activator::Tanh,
+            "sigmoid" => Activator::Sigmoid,
+            _ => panic!("Invalid Activator name {:?}", name),
+        }
+    }
+
+    pub fn activate(&self, x: Num) -> Num {
+        match self {
+            Activator::Relu => relu(x),
+            Activator::Tanh => tanh(x),
+            Activator::Sigmoid => sigmoid(x),
+        }
+    }
+
+    pub fn derivative(&self, x: Num) -> Num {
+        match self {
+            Activator::Relu => relu_deriv(x),
+            Activator::Tanh => tanh_deriv(x),
+            Activator::Sigmoid => sigmoid_deriv(x),
+        }
+    }
+}
+
 pub fn relu(n: Num) -> Num {
     relu_with_threshold(n, 0.0)
 }

@@ -1,4 +1,4 @@
-use super::activation::ActivatorFn;
+use super::activation::Activator;
 use super::neuron::Neuron;
 use super::num_type::Num;
 
@@ -47,7 +47,7 @@ fn matrix_cols(matrix: &Matrix) -> usize {
 
 pub struct Dense {
     matrix: Matrix,
-    activation_derivative: Box<ActivatorFn>,
+    activator: Activator,
     learning_rate: f64,
     inputs: Vec<Num>,
 }
@@ -58,11 +58,11 @@ impl Dense {
         cols: usize,
         data: Vec<Num>,
         biases: Vec<Num>,
-        activation_derivative: Box<ActivatorFn>,
+        activator: Activator,
         learning_rate: f64,
     ) -> Dense {
         Dense {
-            activation_derivative,
+            activator,
             learning_rate,
             matrix: new_matrix(rows, cols, data, biases),
             inputs: Vec::with_capacity(rows),
@@ -99,7 +99,7 @@ impl Dense {
 
     pub fn backprop(&mut self, total_loss_pd: Num, loss_pds: &[Num]) -> Vec<Num> {
         let learning_rate = self.learning_rate;
-        let activation_derivative = Box::new(&self.activation_derivative);
+        let activator = &self.activator;
         let inputs = &self.inputs;
         self.matrix
             .iter_mut()
@@ -110,46 +110,11 @@ impl Dense {
                     total_loss_pd,
                     *neuron_loss_pd,
                     learning_rate,
-                    &activation_derivative,
+                    activator,
                 )
             })
             .collect()
     }
-    // {next_loss_pd, neurons} =
-    //   [get_neurons(layer), List.wrap(loss_pds)]
-    //   |> Enum.zip()
-    //   |> Enum.map(fn {neuron, loss_pd} ->
-    //
-    //   end)
-    //   |> Enum.unzip()
-
-    // {List.flatten(next_loss_pd), [], %Dense{layer | neurons: neurons}}
-    // }
-
-    // pub fn backprop(&mut self, total_loss_pd: Num, loss_pds: &[Num]) -> Vec<Num> {
-    //     let mut index = 0;
-    //     let mut sum_deriv;
-    //     let mut delta_coeff;
-    //     let rows = self.rows();
-
-    //     let mut next_loss = Vec::with_capacity(rows);
-    //     let input_array = Array::from_vec(self.inputs.clone());
-
-    //     for mut row in self.matrix.genrows_mut() {
-    //         sum_deriv = (self.activation_derivative)(self.sums[index]);
-    //         delta_coeff = self.learning_rate * total_loss_pd * loss_pds[index];
-    //         self.biases[index] += sum_deriv * delta_coeff * self.biases[index];
-    //         Zip::from(&mut row)
-    //             .and(input_array.view())
-    //             .apply(|weight, input| {
-    //                 next_loss.push(*weight * sum_deriv);
-    //                 *weight -= input * sum_deriv * delta_coeff;
-    //             });
-
-    //         index += 1;
-    //     }
-    //     next_loss
-    // }
 }
 
 pub fn total_loss_pd(outputs: Vec<Num>, labels: Vec<Num>) -> Num {
@@ -171,16 +136,16 @@ pub fn calc_network_error(net_outputs: Vec<Num>, labels: Vec<Num>) -> Vec<Num> {
 
 #[cfg(test)]
 mod dense_tests {
-    use super::super::activation::sigmoid_deriv;
+    use super::super::activation::Activator;
     use super::super::num_type::Num;
     use super::{total_loss_pd, Dense};
 
     fn dense_fixture() -> Dense {
         let biases = vec![1.0, 1.0];
         let data = vec![1.0, 1.0, 1.0, 0.4, 0.4, 0.4];
-        let activation_derivative = Box::new(sigmoid_deriv);
+        let activator = Activator::Sigmoid;
         let learning_rate = 0.05;
-        Dense::build(2, 3, data, biases, activation_derivative, learning_rate)
+        Dense::build(2, 3, data, biases, activator, learning_rate)
     }
 
     #[test]
