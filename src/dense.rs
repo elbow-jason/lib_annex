@@ -1,4 +1,4 @@
-use super::activation::Activator;
+use super::activation::ActivatorFn;
 use super::neuron::Neuron;
 use super::num_type::Num;
 
@@ -47,7 +47,7 @@ fn matrix_cols(matrix: &Matrix) -> usize {
 
 pub struct Dense {
     matrix: Matrix,
-    activation_derivative: Box<Activator>,
+    activation_derivative: Box<ActivatorFn>,
     learning_rate: f64,
     inputs: Vec<Num>,
 }
@@ -58,7 +58,7 @@ impl Dense {
         cols: usize,
         data: Vec<Num>,
         biases: Vec<Num>,
-        activation_derivative: Box<Activator>,
+        activation_derivative: Box<ActivatorFn>,
         learning_rate: f64,
     ) -> Dense {
         Dense {

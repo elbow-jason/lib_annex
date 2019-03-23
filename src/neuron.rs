@@ -1,4 +1,4 @@
-use super::activation::Activator;
+use super::activation::ActivatorFn;
 use super::num_type::Num;
 
 #[derive(Clone)]
@@ -52,7 +52,7 @@ impl Neuron {
         total_loss_pd: Num,
         neuron_loss_pd: Num,
         learning_rate: Num,
-        activation_deriv: &Box<Activator>,
+        activation_deriv: &Box<ActivatorFn>,
     ) -> Vec<Num> {
         let sum_deriv = activation_deriv(self._sum);
         let delta_coeff = learning_rate * total_loss_pd * neuron_loss_pd;
@@ -75,7 +75,7 @@ fn calc_delta(input: Num, sum_deriv: Num, delta_coeff: Num) -> Num {
 
 #[cfg(test)]
 mod neuron_test {
-    use super::super::activation::{sigmoid, Activator};
+    use super::super::activation::{sigmoid, ActivatorFn};
     use super::Neuron;
 
     #[test]
@@ -111,7 +111,7 @@ mod neuron_test {
         let total_loss_pd = 0.5;
         let neuron_loss_pd = 0.3;
         let learning_rate = 0.05;
-        let activation_deriv: Box<Activator> = Box::new(sigmoid);
+        let activation_deriv: Box<ActivatorFn> = Box::new(sigmoid);
         let next_loss_pds = n.backprop(
             &inputs,
             total_loss_pd,

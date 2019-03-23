@@ -1,5 +1,5 @@
 use super::num_type::Num;
-pub type Activator = Fn(Num) -> Num;
+pub type ActivatorFn = Fn(Num) -> Num;
 
 pub fn relu(n: Num) -> Num {
     relu_with_threshold(n, 0.0)
