@@ -56,13 +56,6 @@ impl Neuron {
     ) -> Vec<Num> {
         let delta_coeff = learning_rate * total_loss_pd * neuron_loss_pd;
         let sum_deriv = activator.derivative(self._sum);
-        println!("total_loss_pd {:?}", total_loss_pd);
-        println!("neuron_loss_pd {:?}", neuron_loss_pd);
-        println!("learning_rate {:?}", learning_rate);
-        println!("activator {:?}", activator);
-        println!("sum_deriv {:?}", sum_deriv);
-        println!("_sum {:?}", self._sum);
-        println!("delta_coeff {:?}", delta_coeff);
         self._bias -= calc_delta(self._bias, sum_deriv, delta_coeff);
         inputs
             .iter()
