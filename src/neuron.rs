@@ -1,7 +1,7 @@
 use super::activation::Activator;
 use super::num_type::Num;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Neuron {
     weights: Vec<Num>,
     _bias: Num,

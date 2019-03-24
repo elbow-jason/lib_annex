@@ -1,7 +1,7 @@
 use super::num_type::Num;
 pub type ActivatorFn = Fn(Num) -> Num;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Activator {
     Relu,
     Tanh,

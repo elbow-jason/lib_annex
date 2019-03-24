@@ -45,6 +45,7 @@ fn matrix_cols(matrix: &Matrix) -> usize {
     matrix[0].size()
 }
 
+#[derive(Debug, Clone)]
 pub struct Dense {
     matrix: Matrix,
     activator: Activator,
@@ -77,8 +78,8 @@ impl Dense {
         matrix_cols(&self.matrix)
     }
 
-    pub fn weights(&self) -> Matrix {
-        self.matrix.clone()
+    pub fn weights(&self) -> Vec<Num> {
+        self.matrix.iter().flat_map(|n| n.clone_weights()).collect()
     }
 
     pub fn sums(&self) -> Vec<Num> {
